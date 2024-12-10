@@ -254,11 +254,25 @@ class PointFeatureConv(nn.Module):
                 out_vertices
             )
 
+        # heeeeeeerrerererereree TODO debugggg
+        print(f'{self=}')
+        print(f'{in_vertices.shape=}')
+        print(f'{out_vertices.shape=}')
+        print(f'{in_vertices[0,...].max(0).values=}')
+        print(f'{out_vertices[0,...].max(0).values=}')
+        print(f'{in_vertices[0,...].min(0).values=}')
+        print(f'{out_vertices[0,...].min(0).values=}')
+        # exit()
+
         if self.neighbor_search_type == "knn":
             device = in_vertices.device
             neighbors_index = batched_neighbor_knn_search(
                 in_vertices, out_vertices, self.radius_or_k
             )
+            print(f'{neighbors_index.shape=}')
+            exit()
+
+
             # B x M x K index
             neighbors_index = neighbors_index.long().to(device).view(-1)
             # M row splits
@@ -280,6 +294,10 @@ class PointFeatureConv(nn.Module):
                 search_method=self.radius_search_method,
             )
             neighbors_index = neighbors.neighbors_index.long()
+            print(f'----->>>>>>  {self.radius_or_k=}')
+            print(f'----->>>>>>  {neighbors.neighbors_index.shape=}')
+            print(f'----->>>>>>  {neighbors.neighbors_row_splits.shape=}')
+            # exit()
             rep_in_features = in_point_features.features.view(-1, in_num_channels)[
                 neighbors_index
             ]

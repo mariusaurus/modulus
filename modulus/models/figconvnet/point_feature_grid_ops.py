@@ -76,6 +76,11 @@ class PointFeatureToGrid(nn.Module):
         radius: float = np.sqrt(3),  # diagonal of a unit cube
     ) -> None:
         super().__init__()
+        # print(f'{resolution=}')
+        # print(f'{voxel_size=}')
+        # print(f'{aabb_min=}')
+        # print(f'{aabb_max=}')
+        # exit()
         if resolution is None:
             assert voxel_size is not None
             resolution = (
@@ -101,6 +106,9 @@ class PointFeatureToGrid(nn.Module):
                 resolution[2] / (aabb_max[2] - aabb_min[2]),
             ]
         )
+
+        # print(f'{vertices_scaler=}')
+        # exit()
         self.conv = PointFeatureConv(
             radius=radius,
             in_channels=in_channels,
@@ -153,6 +161,7 @@ class GridFeatureToPoint(nn.Module):
         sample_method: Literal["graphconv", "interp"] = "graphconv",
         neighbor_search_type: Literal["radius", "knn"] = "radius",
         knn_k: int = 16,
+        radius: float = np.sqrt(3),
         reductions: List[REDUCTION_TYPES] = ["mean"],
     ) -> None:
         super().__init__()
@@ -171,6 +180,7 @@ class GridFeatureToPoint(nn.Module):
                 neighbor_search_type=neighbor_search_type,
                 knn_k=knn_k,
                 reductions=reductions,
+                radius=radius,
             )
         elif sample_method == "interp":
             self.conv = GridFeatureToPointInterp(
@@ -213,12 +223,13 @@ class GridFeatureToPointGraphConv(nn.Module):
         neighbor_search_type: Literal["radius", "knn"] = "radius",
         knn_k: int = 16,
         reductions: List[REDUCTION_TYPES] = ["mean"],
+        radius: float=np.sqrt(3),
     ) -> None:
         super().__init__()
         self.aabb_max = aabb_max
         self.aabb_min = aabb_min
         self.conv = PointFeatureConv(
-            radius=np.sqrt(3),  # diagonal of a unit cube
+            radius=radius,  # diagonal of a unit cube
             in_channels=grid_in_channels,
             out_channels=out_channels,
             provided_in_channels=point_in_channels,
