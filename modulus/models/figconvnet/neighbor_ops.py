@@ -108,10 +108,6 @@ def batched_neighbor_radius_search(
         inp_positions.shape[0] == out_positions.shape[0]
     ), f"Batch size mismatch, {inp_positions.shape[0]} != {out_positions.shape[0]}"
 
-    # print(f'>>>>>>>>>>>>>>>> {out_positions.shape=}')
-    # exit()
-
-
     if search_method == "warp":
         neighbor_index, neighbor_dist, neighbor_offset = batched_radius_search_warp(
             inp_positions, out_positions, radius

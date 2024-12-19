@@ -32,6 +32,7 @@ from modulus.models.figconvnet.geometries import PointFeatures
 from modulus.models.figconvnet.neighbor_ops import (
     batched_neighbor_knn_search,
     batched_neighbor_radius_search,
+    NeighborSearchReturn
 )
 
 
@@ -112,6 +113,7 @@ class PointFeatureConv(nn.Module):
         neighbor_search_type: Literal["radius", "knn"] = "radius",
         radius_search_method: Literal["open3d", "warp"] = "warp",
         knn_k: Optional[int] = None,
+        mode: str=None
     ):
         """If use_relative_position_encoding is True, the positional encoding vertex coordinate
         difference is added to the edge features.
@@ -203,6 +205,19 @@ class PointFeatureConv(nn.Module):
             )
         self.out_transform_mlp = out_transform_mlp
 
+        self.mode = mode
+        
+
+        if self.mode == 'pointtogrid':
+            ind_file, spl_file = 'ptg_ind_sqrt3.pt', 'ptg_splt_sqrt3.pt'
+        elif self.mode == 'gridtopoint':
+            ind_file, spl_file = 'gtp_ind_sqrt3.pt', 'gtp_splt_sqrt3.pt'
+        else:
+            raise ValueError(f'{self.mode}')
+        
+        self.ni = torch.load(ind_file).cuda()
+        self.sp = torch.load(spl_file).cuda()
+
     def __repr__(self):
         out_str = f"{self.__class__.__name__}(in_channels={self.in_channels} out_channels={self.out_channels} search_type={self.neighbor_search_type} reductions={self.reductions}"
         if self.downsample_voxel_size is not None:
@@ -269,9 +284,6 @@ class PointFeatureConv(nn.Module):
             neighbors_index = batched_neighbor_knn_search(
                 in_vertices, out_vertices, self.radius_or_k
             )
-            # print(f'{neighbors_index.shape=}')
-            # exit()
-
 
             # B x M x K index
             neighbors_index = neighbors_index.long().to(device).view(-1)
@@ -287,17 +299,32 @@ class PointFeatureConv(nn.Module):
             ]
             num_reps = self.radius_or_k
         elif self.neighbor_search_type == "radius":
-            neighbors = batched_neighbor_radius_search(
-                in_vertices,
-                out_vertices,
-                radius=self.radius_or_k,
-                search_method=self.radius_search_method,
-            )
-            neighbors_index = neighbors.neighbors_index.long()
-            # print(f'----->>>>>>  {self.radius_or_k=}')
-            # print(f'----->>>>>>  {neighbors.neighbors_index.shape=}')
-            # print(f'----->>>>>>  {neighbors.neighbors_row_splits.shape=}')
+            # neighbors = batched_neighbor_radius_search(
+            #     in_vertices,
+            #     out_vertices,
+            #     radius=self.radius_or_k,
+            #     search_method=self.radius_search_method,
+            # )
+
+            neighbors = NeighborSearchReturn(self.ni, self.sp)
+
+            # if self.mode == 'pointtogrid':
+            #     torch.save(neighbors.neighbors_index, 'ptg_ind_sqrt3.pt')
+            #     torch.save(neighbors.neighbors_row_splits, 'ptg_splt_sqrt3.pt')
+            # elif self.mode == 'gridtopoint':
+            #     torch.save(neighbors.neighbors_index, 'gtp_ind_sqrt3.pt')
+            #     torch.save(neighbors.neighbors_row_splits, 'gtp_splt_sqrt3.pt')
+            # else:
+            #     raise ValueError(f'{self.mode}')
+
+            # assert torch.all(neighbors.neighbors_index == neighbors_stored.neighbors_index), 'index :::(((((('
+            # assert torch.all(neighbors.neighbors_row_splits == neighbors_stored.neighbors_row_splits), 'split :::(((((('
+
+            # print(f'{neighbors.neighbors_index.shape=}')
+            # print(f'{neighbors.neighbors_row_splits.shape=}')
             # exit()
+
+            neighbors_index = neighbors.neighbors_index.long()
             rep_in_features = in_point_features.features.view(-1, in_num_channels)[
                 neighbors_index
             ]

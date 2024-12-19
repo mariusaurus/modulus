@@ -122,6 +122,7 @@ class PointFeatureToGrid(nn.Module):
             reductions=reductions,
             neighbor_search_type=neighbor_search_type,
             knn_k=knn_k,
+            mode='pointtogrid'
         )
 
     def forward(self, point_features: PointFeatures) -> GridFeatures:
@@ -241,6 +242,7 @@ class GridFeatureToPointGraphConv(nn.Module):
             neighbor_search_type=neighbor_search_type,
             knn_k=knn_k,
             reductions=reductions,
+            mode='gridtopoint'
         )
 
     def forward(
