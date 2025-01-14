@@ -322,7 +322,6 @@ class FIGConvUNet(BaseModel):
             self.drag_loss_weight = drag_loss_weight
 
     def _grid_forward(self, point_features: PointFeatures):
-        grid_dat = self.point_feature_to_grids[0](point_features)
         grid_feature_group = GridFeatureGroup(
             [to_grid(point_features) for to_grid in self.point_feature_to_grids]
         )

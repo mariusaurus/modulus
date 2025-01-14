@@ -269,22 +269,11 @@ class PointFeatureConv(nn.Module):
                 out_vertices
             )
 
-        # heeeeeeerrerererereree TODO debugggg
-        # print(f'{self=}')
-        # print(f'{in_vertices.shape=}')
-        # print(f'{out_vertices.shape=}')
-        # print(f'{in_vertices[0,...].max(0).values=}')
-        # print(f'{out_vertices[0,...].max(0).values=}')
-        # print(f'{in_vertices[0,...].min(0).values=}')
-        # print(f'{out_vertices[0,...].min(0).values=}')
-        # exit()
-
         if self.neighbor_search_type == "knn":
             device = in_vertices.device
             neighbors_index = batched_neighbor_knn_search(
                 in_vertices, out_vertices, self.radius_or_k
             )
-
             # B x M x K index
             neighbors_index = neighbors_index.long().to(device).view(-1)
             # M row splits
@@ -299,14 +288,19 @@ class PointFeatureConv(nn.Module):
             ]
             num_reps = self.radius_or_k
         elif self.neighbor_search_type == "radius":
-            # neighbors = batched_neighbor_radius_search(
-            #     in_vertices,
-            #     out_vertices,
-            #     radius=self.radius_or_k,
-            #     search_method=self.radius_search_method,
-            # )
+            ### CAUTION: for cached neighbours comment
 
-            neighbors = NeighborSearchReturn(self.ni, self.sp)
+            cached_neighbours = False
+
+            if not cached_neighbours:
+                neighbors = batched_neighbor_radius_search(
+                    in_vertices,
+                    out_vertices,
+                    radius=self.radius_or_k,
+                    search_method=self.radius_search_method,
+                )
+            else:
+                neighbors = NeighborSearchReturn(self.ni, self.sp)
 
             # if self.mode == 'pointtogrid':
             #     torch.save(neighbors.neighbors_index, 'ptg_ind_sqrt3.pt')
