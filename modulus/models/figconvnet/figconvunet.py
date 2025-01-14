@@ -323,14 +323,9 @@ class FIGConvUNet(BaseModel):
 
     def _grid_forward(self, point_features: PointFeatures):
         grid_dat = self.point_feature_to_grids[0](point_features)
-        print(f'{grid_dat.grid_shape=}')
-        print(f'{grid_dat.vertices.shape=}')
-        print(f'{grid_dat.features.shape=}')
-        exit()
         grid_feature_group = GridFeatureGroup(
             [to_grid(point_features) for to_grid in self.point_feature_to_grids]
         )
-
         down_grid_feature_groups = [grid_feature_group]
         for down_block in self.down_blocks:
             out_features = down_block(down_grid_feature_groups[-1])

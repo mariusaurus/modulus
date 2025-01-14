@@ -114,12 +114,7 @@ class FIGConvUNetDrivAerNet(FIGConvUNet):
     @torch.no_grad()
     def eval_dict(self, data_dict, loss_fn=None, datamodule=None, **kwargs) -> Dict:
         vertices = self.data_dict_to_input(data_dict)
-        print(f'{vertices.shape=}')
         normalized_pred, drag_pred = self(vertices)
-        print(f'{normalized_pred.shape=}')
-        print(f'{drag_pred.shape=}')
-        exit()
-
         if loss_fn is None:
             loss_fn = self.loss
         normalized_gt = (

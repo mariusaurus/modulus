@@ -76,11 +76,6 @@ class PointFeatureToGrid(nn.Module):
         radius: float = np.sqrt(3),  # diagonal of a unit cube
     ) -> None:
         super().__init__()
-        # print(f'{resolution=}')
-        # print(f'{voxel_size=}')
-        # print(f'{aabb_min=}')
-        # print(f'{aabb_max=}')
-        # exit()
         if resolution is None:
             assert voxel_size is not None
             resolution = (
@@ -106,9 +101,6 @@ class PointFeatureToGrid(nn.Module):
                 resolution[2] / (aabb_max[2] - aabb_min[2]),
             ]
         )
-
-        # print(f'{vertices_scaler=}')
-        # exit()
         self.conv = PointFeatureConv(
             radius=radius,
             in_channels=in_channels,
