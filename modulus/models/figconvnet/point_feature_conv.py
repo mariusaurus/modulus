@@ -208,15 +208,15 @@ class PointFeatureConv(nn.Module):
         self.mode = mode
         
 
-        if self.mode == 'pointtogrid':
-            ind_file, spl_file = 'ptg_ind_sqrt3.pt', 'ptg_splt_sqrt3.pt'
-        elif self.mode == 'gridtopoint':
-            ind_file, spl_file = 'gtp_ind_sqrt3.pt', 'gtp_splt_sqrt3.pt'
-        else:
-            raise ValueError(f'{self.mode}')
+        # if self.mode == 'pointtogrid':
+        #     ind_file, spl_file = 'ptg_ind_sqrt3.pt', 'ptg_splt_sqrt3.pt'
+        # elif self.mode == 'gridtopoint':
+        #     ind_file, spl_file = 'gtp_ind_sqrt3.pt', 'gtp_splt_sqrt3.pt'
+        # else:
+        #     raise ValueError(f'{self.mode}')
         
-        self.ni = torch.load(ind_file).cuda()
-        self.sp = torch.load(spl_file).cuda()
+        # self.ni = torch.load(ind_file).cuda()
+        # self.sp = torch.load(spl_file).cuda()
 
     def __repr__(self):
         out_str = f"{self.__class__.__name__}(in_channels={self.in_channels} out_channels={self.out_channels} search_type={self.neighbor_search_type} reductions={self.reductions}"
