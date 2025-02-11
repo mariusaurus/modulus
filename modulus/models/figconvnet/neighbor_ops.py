@@ -83,7 +83,7 @@ def neighbor_radius_search(
     assert inp_positions.device == out_positions.device
     if search_method == "warp":
         neighbor_index, neighbor_distance, neighbor_split = radius_search_warp(
-            inp_positions, out_positions, radius
+            points=inp_positions, queries=out_positions, radius=radius, device=inp_positions.device
         )
     else:
         raise ValueError(f"search_method {search_method} not supported.")
@@ -110,7 +110,7 @@ def batched_neighbor_radius_search(
 
     if search_method == "warp":
         neighbor_index, neighbor_dist, neighbor_offset = batched_radius_search_warp(
-            inp_positions, out_positions, radius
+            points=inp_positions, queries=out_positions, radius=radius, device=str(inp_positions.device)
         )
     else:
         raise ValueError(f"search_method {search_method} not supported.")
